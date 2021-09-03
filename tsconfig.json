@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "rootDir": "./src/",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

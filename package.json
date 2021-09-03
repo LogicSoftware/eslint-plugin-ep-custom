@@ -1,0 +1,29 @@
+{
+  "name": "@logicsoftware/eslint-plugin-ep-custom",
+  "version": "0.1.0",
+  "description": "Custom eslint rules for EP application",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc src/index.ts --outDir dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LogicSoftware/eslint-plugin-ep-custom.git"
+  },
+  "keywords": [
+    "eslint",
+    "easyprojects"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LogicSoftware/eslint-plugin-ep-custom/issues"
+  },
+  "homepage": "https://github.com/LogicSoftware/eslint-plugin-ep-custom#readme",
+  "devDependencies": {
+    "@types/eslint": "^7.28.0",
+    "@types/estree": "^0.0.50",
+    "@types/node": "^16.7.10",
+    "typescript": "^4.4.2"
+  }
+}
