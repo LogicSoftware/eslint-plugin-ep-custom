@@ -51,6 +51,17 @@ In `.eslintrc.js` file, add the following configuration to `exports.overrdes` se
 * `aliases` - map of aliases to be used by webpack/ts/jest module loader.
 
 
+## Example config
 
+```json5
+{
+  ignoreFeatures: ["app", "Tests", "QUnit"],
+  allowedImports: ["common", "const", "EasyProjects" ],
+  aliases: {
+    "~": "."
+  },
+  baseUrl: "src/Scripts/"
+}
+```
 
 
