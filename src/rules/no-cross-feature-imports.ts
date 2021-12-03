@@ -2,7 +2,7 @@ import {Rule} from "eslint";
 import {ImportDeclaration, ImportExpression} from "estree";
 import * as path from "path";
 
-type Options = {
+export type CheckCrossFeatureOptions = {
     ignoreFeatures: string[];
     allowedImports: string[];
     baseUri: string;
@@ -13,7 +13,7 @@ type CheckCrossFeatureParams = {
     node: (ImportDeclaration | ImportExpression) & Rule.NodeParentExtension;
     currentFeature: string;
     sourceFileName: string;
-    options: Options;
+    options: CheckCrossFeatureOptions;
     context: Rule.RuleContext;
 }
 
@@ -22,7 +22,7 @@ let aliases: { [alias: string]: string } = {};
 
 const rule: Rule.RuleModule = {
     create: (context: Rule.RuleContext) => {
-        const options: Options = Object.assign({}, {
+        const options: CheckCrossFeatureOptions = Object.assign({}, {
             baseUri: "./src/Scripts/",
             aliases: {}
         }, context.options[0]);
