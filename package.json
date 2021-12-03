@@ -1,11 +1,10 @@
 {
   "name": "@logicsoftware/eslint-plugin-ep-custom",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Custom eslint rules for EP application",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc src/index.ts --outDir dist",
-    "deploy": "npm run build && xcopy . C:\\Projects\\EPFrontend\\src\\node_modules\\@logicsoftware\\eslint-plugin-ep-custom\\ /E/H/Y",
     "test": "jest"
   },
   "repository": {
