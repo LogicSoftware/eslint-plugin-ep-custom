@@ -1,67 +1,90 @@
-import { Rule } from "eslint";
-import { ImportDeclaration, ImportExpression } from "estree";
+import {Rule} from "eslint";
+import {ImportDeclaration, ImportExpression} from "estree";
+import * as path from "path";
 
-type Options = {
+export type CheckCrossFeatureOptions = {
     ignoreFeatures: string[];
     allowedImports: string[];
+    baseUri: string;
+    aliases: { [key: string]: string };
 };
 
 type CheckCrossFeatureParams = {
     node: (ImportDeclaration | ImportExpression) & Rule.NodeParentExtension;
-    importToRootStart: string;
-    options: Options;
+    currentFeature: string;
+    sourceFileName: string;
+    options: CheckCrossFeatureOptions;
     context: Rule.RuleContext;
 }
 
 let root = "";
+let aliases: { [alias: string]: string } = {};
 
 const rule: Rule.RuleModule = {
     create: (context: Rule.RuleContext) => {
-        const options: Options = context.options[0] || {};
-        
+        const options: CheckCrossFeatureOptions = Object.assign({}, {
+            baseUri: "./src/Scripts/",
+            aliases: {}
+        }, context.options[0]);
+        aliases = options.aliases;
+
         if (!options.allowedImports || !options.ignoreFeatures) {
             throw new Error("The rule should contain next config: { allowedImports: string[], ignoreFeatures: string[] }");
         }
 
-        const sourceFileName = context.getFilename().replace(/\\/g, "/");
+        const sourceFileName = context.getFilename();
 
         if (!root) {
-            const index = sourceFileName.indexOf("src/Scripts/") + "src/Scripts/".length;
+            const baseUrl = path.normalize(options.baseUri);
+
+            const index = sourceFileName.indexOf(baseUrl) + baseUrl.length;
             root = sourceFileName.substring(0, index);
         }
 
-        const relativePath = sourceFileName.substring(root.length);
+        const relativePath = path.relative(root, sourceFileName);
         const currentFeature = getFeature(relativePath);
 
         if (options.ignoreFeatures.includes(currentFeature)) {
             return {};
         }
 
-        const importToRootStart = getImportToRootStart(relativePath);
-
         return {
             ImportDeclaration(node) {
-                checkCrossFeature({ node, importToRootStart, options, context })
+                checkCrossFeature({node, currentFeature, sourceFileName, options, context})
             },
             ImportExpression(node) {
-                checkCrossFeature({ node, importToRootStart, options, context })
+                checkCrossFeature({node, currentFeature, sourceFileName, options, context})
             },
         }
     },
 };
 
-const checkCrossFeature = ({ node, importToRootStart, options, context }: CheckCrossFeatureParams) => {
+const applyAliases = (importPath: string, sourceFileFolder: string) => {
+    for (const [alias, aliasPath] of Object.entries(aliases) as [string, string][]) {
+        if (importPath.startsWith(alias + '/')) {
+            let fullPath = path.resolve(aliasPath, root);
+            let relativePath = path.relative(sourceFileFolder, fullPath);
+
+            return importPath.replace(alias, relativePath.replace(/\\/g, '/'));
+        }
+    }
+    return importPath;
+};
+
+const checkCrossFeature = ({node, currentFeature, sourceFileName, options, context}: CheckCrossFeatureParams) => {
+    let sourceFileFolder = path.dirname(sourceFileName);
+
     // @ts-ignore
     let importPath = node.source.value as string;
-    // remove leading './'
-    if (importPath.startsWith("./..")) {
-        importPath = importPath.substr(2);
-    }
 
-    if (importPath.startsWith(importToRootStart)) {
-        const feature = getFeature(importPath.substring(importToRootStart.length));
+    let fixedImportPath = applyAliases(importPath, sourceFileFolder);
 
-        if (feature && !options.allowedImports.includes(feature)) {
+    if (fixedImportPath.startsWith(".")) {
+        let fullImportPath = path.resolve(sourceFileFolder, fixedImportPath);
+        let relativeFeaturePath = path.relative(root, fullImportPath);
+        let importedFeature = getFeature(relativeFeaturePath);
+
+        if (importedFeature && currentFeature !== importedFeature && !options.allowedImports.includes(importedFeature)) {
             context.report({
                 node,
                 // @ts-ignore
@@ -76,33 +99,8 @@ const getFeature = (relativePath: string) => {
     if (relativePath[0] === ".") {
         return "";
     }
-    const index = relativePath.indexOf("/");
+    const index = relativePath.indexOf(path.sep);
     return index === -1 ? "" : relativePath.substring(0, index);
-};
-
-const importStartHashByDepth: { [key: number]: string} = {
-    0: "allow_any_imports_from_root",
-};
-
-const getImportToRootStart = (relativePath: string) => {
-    const depth = findFileDepth(relativePath);
-    return importStartHashByDepth[depth] || (importStartHashByDepth[depth] = createImportRootStart(depth));
-};
-
-const createImportRootStart = (depth: number) => {
-    const array = new Array(depth);
-    array.fill("..");
-    return array.join("/") + "/";
-};
-
-const findFileDepth = (relativePath: string) => {
-    let count = 0;
-    for (const c of relativePath) {
-        if (c === "/") {
-            count++;
-        }
-    }
-    return count;
 };
 
 export default rule;
