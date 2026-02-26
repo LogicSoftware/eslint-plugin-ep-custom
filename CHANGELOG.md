@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.0.1] - 2026-02-26
+
+### Breaking Changes
+
+None — this is a patch release.
+
+### Highlights
+
+- `peerDependencies` field added to `package.json` so package managers (npm, yarn, pnpm) can now warn consumers when an incompatible ESLint version is installed.
+
+### What's Changed
+
+#### `package.json`
+
+- Added `peerDependencies`:
+  ```json
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  }
+  ```
+
+---
+
 ## [2.0.0] - 2026-02-26
 
 ### Breaking Changes

@@ -1,6 +1,6 @@
 {
   "name": "@logicsoftware/eslint-plugin-ep-custom",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Custom eslint rules for EP application",
   "main": "dist/index.js",
   "scripts": {
@@ -21,6 +21,9 @@
     "url": "https://github.com/LogicSoftware/eslint-plugin-ep-custom/issues"
   },
   "homepage": "https://github.com/LogicSoftware/eslint-plugin-ep-custom#readme",
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
   "devDependencies": {
     "@types/eslint": "^9.6.1",
     "@types/estree": "^1.0.8",
