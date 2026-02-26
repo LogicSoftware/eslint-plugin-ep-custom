@@ -21,6 +21,31 @@ let root = "";
 let aliases: { [alias: string]: string } = {};
 
 const rule: Rule.RuleModule = {
+    meta: {
+        type: "suggestion",
+        schema: [
+            {
+                type: "object",
+                properties: {
+                    baseUri: { type: "string" },
+                    allowedImports: {
+                        type: "array",
+                        items: { type: "string" },
+                    },
+                    ignoreFeatures: {
+                        type: "array",
+                        items: { type: "string" },
+                    },
+                    aliases: {
+                        type: "object",
+                        additionalProperties: { type: "string" },
+                    },
+                },
+                required: ["allowedImports", "ignoreFeatures"],
+                additionalProperties: false,
+            },
+        ],
+    },
     create: (context: Rule.RuleContext) => {
         const options: CheckCrossFeatureOptions = Object.assign({}, {
             baseUri: "./src/Scripts/",
@@ -32,7 +57,7 @@ const rule: Rule.RuleModule = {
             throw new Error("The rule should contain next config: { allowedImports: string[], ignoreFeatures: string[] }");
         }
 
-        const sourceFileName = context.getFilename();
+        const sourceFileName = context.filename;
 
         if (!root) {
             const baseUrl = path.normalize(options.baseUri);

@@ -8,7 +8,9 @@ import * as path from "path";
 describe("dummy to allow tests starting from ide", () => { })
 
 const ruleTester: RuleTester = new RuleTester({
-    parser: require.resolve('@typescript-eslint/parser'),
+    languageOptions: {
+        parser: require('@typescript-eslint/parser'),
+    },
 });
 
 const root = "c:/projects/front/src/Scripts";
@@ -78,7 +80,6 @@ ruleTester.run("no-cross-feature-imports", rule, {
         validCase({
             filename: `${root}/Feature1/index.ts`,
             code: `import "../../Content/styles.css"`,
-            only: true,
         }),
 
         // deep case
